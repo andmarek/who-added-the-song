@@ -76,12 +76,16 @@ export default function Game() {
               <h1>Listen to the Song</h1>
               <AudioPlayer src={currentSongToGuess.song.previewUrl} />
             </div>
-            <Card className="flex flex-col">
+            <Card
+              direction={{ base: "column", sm: "row" }}
+              variant="outline"
+            >
               <Image
                 objectFit='cover'
                 maxW={{ base: '100%', sm: '200px' }}
                 src={currentSongToGuess.song.albumImageUrl}
-                alt='Caffe Latte'
+                borderRadius="md"
+                alt='Album Cover Art Image'
               />
               <CardBody>
                 <Text fontSize="large">Title: {currentSongToGuess.song.title}</Text>
@@ -97,13 +101,13 @@ export default function Game() {
       </div>
       <div className="flex flex-col place-items-center">
         <Text fontSize="large"> Who do you think added this song? </Text>
-        <div className="flex flex-row space-x-2">
+        <Stack>
           {
             currentSongToGuess && currentSongToGuess.potentialAdders.map((adder, index) => (
               <Button className="hover:text-cyan-600" onClick={() => makeGuess(adder, currentAnswer)} key={index}>{adder}</Button>
             ))
           }
-        </div>
+        </Stack>
       </div>
       <div>
         <Button colorScheme='blue' onClick={() => fetchGame(gameId)}>Next Song</Button>

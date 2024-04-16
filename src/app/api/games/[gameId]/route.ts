@@ -187,17 +187,18 @@ export async function POST(request: Request) {
   console.log(playlistDetailsJson);
 
   const randomSong = getRandomSong(playlistDetailsJson);
+
   const getUserProfileResponse = await getUserProfile(randomSong.addedBy.id, getAccessTokenResponse);
   const personWhoAdded = getUserProfileResponse.display_name;
 
-  const randomCollaboratorsIds = getRandomCollaborators(3, playlistDetailsJson, personWhoAdded);
+  const randomCollaboratorsIds = getRandomCollaborators(3, playlistDetailsJson, randomSong.addedBy.id);
 
   const randomCollaboratorsDisplayNames = await Promise.all(randomCollaboratorsIds.map(async (collaboratorId: string) => {
     const collaboratorProfile = await getUserProfile(collaboratorId, getAccessTokenResponse);
     return collaboratorProfile.display_name;
   }));
 
-
+  randomCollaboratorsDisplayNames.splice((randomCollaboratorsDisplayNames.length + 1) * Math.random() | 0, 0, personWhoAdded);
 
   console.log(personWhoAdded);
 
@@ -208,7 +209,7 @@ export async function POST(request: Request) {
     gameDetails: getOrCreateResponse,
     song: randomSong as string,
     personWhoAdded: personWhoAdded as string,
-    potentialAdders: [personWhoAdded, ...randomCollaboratorsDisplayNames] as string[]
+    potentialAdders: randomCollaboratorsDisplayNames as string[]
   }
 
   return Response.json(apiResponse);
