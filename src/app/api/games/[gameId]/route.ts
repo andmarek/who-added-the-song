@@ -107,7 +107,8 @@ export async function fetchPlaylistDetails(playlistId: string, accessToken: stri
       title: item.track.name,
       artists: item.track.artists.map((artist: any) => artist.name),
       addedBy: item.added_by,
-      external: item.added_by.external_urls
+      external: item.added_by.external_urls,
+      previewUrl: item.track.preview_url,
     };
   });
   return tracks;
@@ -182,9 +183,7 @@ export async function POST(request: Request) {
 
   const playlistDetailsJson = await fetchPlaylistDetails(gameId, getAccessTokenResponse);
 
-  console.log("$%%");
   console.log(playlistDetailsJson);
-  console.log("$%%");
 
   const randomSong = getRandomSong(playlistDetailsJson);
   const getUserProfileResponse = await getUserProfile(randomSong.addedBy.id, getAccessTokenResponse);

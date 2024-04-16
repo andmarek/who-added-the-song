@@ -2,6 +2,7 @@
 
 import { useState, useEffect, } from "react";
 import { useParams } from "next/navigation";
+import AudioPlayer from "./AudioPlayer";
 
 export default function Game() {
   const params = useParams<{ gameId: string }>();
@@ -14,8 +15,9 @@ export default function Game() {
 
   async function fetchGame(gameId: string) {
     if (!gameId) return;
-
+    setResult("");
     try {
+
       const response = await fetch(`/api/games/${gameId}`, {
         method: "POST",
         body: JSON.stringify({ gameId }),
@@ -59,6 +61,10 @@ export default function Game() {
       <div className="flex flex-row">
         {currentSongToGuess ? (
           <div>
+            <div className="flex bg-red space-x-5">
+              <h1>Listen to the Song</h1>
+              <AudioPlayer src={currentSongToGuess.song.previewUrl} />
+            </div>
             <div className="flex flex-col">
               <h1> Song Info </h1>
               <p>Title: {currentSongToGuess.song.title}</p>
@@ -83,6 +89,9 @@ export default function Game() {
       </div>
       <div>
         <p>Result: {result}</p>
+      </div>
+      <div>
+        <button className="hover:text-cyan-600" onClick={() => fetchGame(gameId)}>Next Song</button>
       </div>
     </div>
   );
