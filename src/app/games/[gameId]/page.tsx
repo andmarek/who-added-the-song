@@ -1,12 +1,19 @@
 "use client";
 
-import { Heading, Text, Button, ButtonGroup, useToast } from '@chakra-ui/react'
+import { Card, CardHeader, CardBody, Image, Stack, Heading, Text, Button, ButtonGroup, useToast } from '@chakra-ui/react'
 
-import { useState, useEffect, } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import AudioPlayer from "./AudioPlayer";
 
 export default function Game() {
+  const toast = useToast();
+  const toastIdRef = useRef();
+
+  function addToast(text: string, status: "success" | "error") {
+    toastIdRef.current = toast({ title: text, status: status, isClosable: true, position: "top", duration: 1000 })
+  }
+
   const params = useParams<{ gameId: string }>();
   const gameId = params.gameId;
   const [pageError, setPageError] = useState("");
@@ -45,9 +52,11 @@ export default function Game() {
 
   function makeGuess(adder, answer) {
     if (adder == answer) {
+      addToast("Correct!", "success");
       console.log("Correct!");
       setResult("Correct!");
     } else {
+      addToast("Incorrect!", "error");
       setResult("Incorrect!");
       console.log("Incorrect!");
     }
@@ -59,7 +68,7 @@ export default function Game() {
 
   return (
     <div className="flex flex-col place-items-center space-y-5">
-      <p>Random Song:</p>
+      <Heading>Guess Who Added the Song:</Heading>
       <div className="flex flex-row">
         {currentSongToGuess ? (
           <div>
@@ -67,30 +76,34 @@ export default function Game() {
               <h1>Listen to the Song</h1>
               <AudioPlayer src={currentSongToGuess.song.previewUrl} />
             </div>
-            <div className="flex flex-col">
-              <Text fontSize='3xl'>Song Info</Text>
-              <Text fontSize="large">Title: {currentSongToGuess.song.title}</Text>
-              <Text fontSize="large">Artists: {currentSongToGuess.song.artists.map((artist, index) => (
-                <span key={index}>{artist.name}{artist}</span>
-              ))}</Text>
-            </div>
+            <Card className="flex flex-col">
+              <Image
+                objectFit='cover'
+                maxW={{ base: '100%', sm: '200px' }}
+                src={currentSongToGuess.song.albumImageUrl}
+                alt='Caffe Latte'
+              />
+              <CardBody>
+                <Text fontSize="large">Title: {currentSongToGuess.song.title}</Text>
+                <Text fontSize="large">Artists: {currentSongToGuess.song.artists.map((artist, index) => (
+                  <span key={index}>{artist.name}{artist}</span>
+                ))}</Text>
+              </CardBody>
+            </Card>
           </div>
         ) : (
           pageError ? <p>Error: {pageError}</p> : <p>Loading...</p>
         )}
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col place-items-center">
         <Text fontSize="large"> Who do you think added this song? </Text>
         <div className="flex flex-row space-x-2">
           {
             currentSongToGuess && currentSongToGuess.potentialAdders.map((adder, index) => (
-              <button className="hover:text-cyan-600" onClick={() => makeGuess(adder, currentAnswer)} key={index}>{adder}</button>
+              <Button className="hover:text-cyan-600" onClick={() => makeGuess(adder, currentAnswer)} key={index}>{adder}</Button>
             ))
           }
         </div>
-      </div>
-      <div>
-        <Text fontSize="large">Result: {result}</Text>
       </div>
       <div>
         <Button colorScheme='blue' onClick={() => fetchGame(gameId)}>Next Song</Button>

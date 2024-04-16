@@ -109,6 +109,7 @@ export async function fetchPlaylistDetails(playlistId: string, accessToken: stri
       addedBy: item.added_by,
       external: item.added_by.external_urls,
       previewUrl: item.track.preview_url,
+      albumImageUrl: item.track.album.images[0].url,
     };
   });
   return tracks;
