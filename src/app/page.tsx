@@ -1,6 +1,9 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from '@chakra-ui/react'
+
 
 export default function Home() {
   const router = useRouter();
@@ -35,9 +38,9 @@ export default function Home() {
               placeholder="Enter a Spotify Playlist URL to get started"
             />
             <div>
-              <button type="submit">
-                Start Game
-              </button>
+              <Button colorScheme='teal' size='xs'>
+                Button
+              </Button>
             </div>
           </div>
         </form>

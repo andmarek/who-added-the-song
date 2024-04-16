@@ -1,5 +1,7 @@
 "use client";
 
+import { Heading, Text, Button, ButtonGroup, useToast } from '@chakra-ui/react'
+
 import { useState, useEffect, } from "react";
 import { useParams } from "next/navigation";
 import AudioPlayer from "./AudioPlayer";
@@ -66,11 +68,11 @@ export default function Game() {
               <AudioPlayer src={currentSongToGuess.song.previewUrl} />
             </div>
             <div className="flex flex-col">
-              <h1> Song Info </h1>
-              <p>Title: {currentSongToGuess.song.title}</p>
-              <p>Artists: {currentSongToGuess.song.artists.map((artist, index) => (
+              <Text fontSize='3xl'>Song Info</Text>
+              <Text fontSize="large">Title: {currentSongToGuess.song.title}</Text>
+              <Text fontSize="large">Artists: {currentSongToGuess.song.artists.map((artist, index) => (
                 <span key={index}>{artist.name}{artist}</span>
-              ))}</p>
+              ))}</Text>
             </div>
           </div>
         ) : (
@@ -78,7 +80,7 @@ export default function Game() {
         )}
       </div>
       <div className="flex flex-col">
-        <p> Who do you think added this song? </p>
+        <Text fontSize="large"> Who do you think added this song? </Text>
         <div className="flex flex-row space-x-2">
           {
             currentSongToGuess && currentSongToGuess.potentialAdders.map((adder, index) => (
@@ -88,10 +90,10 @@ export default function Game() {
         </div>
       </div>
       <div>
-        <p>Result: {result}</p>
+        <Text fontSize="large">Result: {result}</Text>
       </div>
       <div>
-        <button className="hover:text-cyan-600" onClick={() => fetchGame(gameId)}>Next Song</button>
+        <Button colorScheme='blue' onClick={() => fetchGame(gameId)}>Next Song</Button>
       </div>
     </div>
   );
