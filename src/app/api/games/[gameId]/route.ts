@@ -13,6 +13,7 @@ const docClient = DynamoDBDocumentClient.from(ddb);
 const tableName = process.env.TABLE_NAME as string
 
 async function getAccessToken() {
+  console.log("Getting token");
   const tokenResponse = await axios.post(
     "https://accounts.spotify.com/api/token",
     "grant_type=client_credentials",
@@ -29,6 +30,7 @@ async function getAccessToken() {
       },
     }
   );
+  console.log("got token");
   const accessToken = tokenResponse.data.access_token;
   return accessToken;
 }
@@ -64,6 +66,7 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
     );
     return playlistResponse.data;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
@@ -82,6 +85,7 @@ function getRandomCollaborators(size: number, tracks: any, actualCollaborator: s
 }
 
 async function getUserProfile(userId: string, accessToken: string) {
+  console.log("Getting user profile", userId);
   try {
     const playlistResponse = await axios.get(
       `https://api.spotify.com/v1/users/${userId}`,
@@ -93,13 +97,13 @@ async function getUserProfile(userId: string, accessToken: string) {
     );
     return playlistResponse.data;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 }
 
 async function fetchPlaylistDetails(playlistId: string, accessToken: string) {
   const fetchPlaylistResponse = await fetchPlaylistTracks(playlistId, accessToken);
-
   const tracks = fetchPlaylistResponse.items.map((item: any) => {
     return {
       title: item.track.name,
@@ -115,6 +119,7 @@ async function fetchPlaylistDetails(playlistId: string, accessToken: string) {
 
 async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName: string) {
   try {
+    console.log("Getting or creating playlist from: ", tableName, "with id: ", playlistId);
     // Try to get the item
     const response = await docClient.send(new GetCommand({
       TableName: tableName,
@@ -124,6 +129,7 @@ async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName
     }));
 
     if (response.Item) {
+      console.log("Found playlist in DynamoDb");
       return response.Item;
     } else {
       // Item not found, attempt to create it
@@ -144,7 +150,7 @@ async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName
     }
   } catch (error: any) {
     if (error.code === 'ConditionalCheckFailedException') {
-      // The item was created between the get and put operations, retrieve it
+      console.log("The item was created between the get and put operations, retrieve it");
       const params = {
         TableName: tableName,
         Key: {
@@ -178,7 +184,6 @@ export async function POST(request: Request) {
 
   const playlistDetailsJson = await fetchPlaylistDetails(gameId, getAccessTokenResponse);
 
-
   const randomSong = getRandomSong(playlistDetailsJson);
 
   const getUserProfileResponse = await getUserProfile(randomSong.addedBy.id, getAccessTokenResponse);
@@ -191,7 +196,6 @@ export async function POST(request: Request) {
     const collaboratorProfile = await getUserProfile(id, getAccessTokenResponse);
     return collaboratorProfile.display_name;
   }));
-
   randomCollaboratorsDisplayNames.splice((randomCollaboratorsDisplayNames.length + 1) * Math.random() | 0, 0, personWhoAdded);
 
   const apiResponse = {
