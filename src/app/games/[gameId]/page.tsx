@@ -27,7 +27,7 @@ interface Artist {
 interface Song {
   albumImageUrl: string;
   title: string;
-  artists: Artist[];
+  artists: string[];
   previewUrl: string;
 }
 
@@ -125,9 +125,7 @@ export default function Game() {
               />
               <CardBody>
                 <Text fontSize="large">Title: {currentSongToGuess.song.title}</Text>
-                <Text fontSize="large">Artists: {currentSongToGuess.song.artists.map((artist, index) => (
-                  <span key={index}>{artist.name}{artist.name}</span>
-                ))}</Text>
+                <Text fontSize="large">Artists: {currentSongToGuess.song.artists.map((artist) => artist).join(', ')}</Text>
               </CardBody>
             </Card>
             <audio className="self-center w-full" controls src={currentSongToGuess.song.previewUrl} />
