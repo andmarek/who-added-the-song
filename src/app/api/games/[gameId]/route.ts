@@ -68,7 +68,7 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
   }
 };
 
-function getRandomCollaborators(size: number, tracks, actualCollaborator) {
+function getRandomCollaborators(size: number, tracks: any, actualCollaborator: string) {
   const collaborators = new Set(); // Using a Set to avoid duplicates
   while (collaborators.size < size) {
     const randomIndex = Math.floor(Math.random() * tracks.length);

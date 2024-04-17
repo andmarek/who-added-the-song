@@ -14,7 +14,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useSearchParams, } from "next/navigation";
 import Link from 'next/link'
 
@@ -46,11 +46,10 @@ export default function Game() {
   const [currentAnswer, setCurrentAnswer] = useState(null);
   const [result, setResult] = useState("");
 
-  async function fetchGame(gameId: string) {
+  const fetchGame = useCallback(async (gameId: string) => {
     if (!gameId) return;
     setResult("");
     try {
-
       const response = await fetch(`/api/games/${gameId}`, {
         method: "POST",
         body: JSON.stringify({ gameId: gameId, options: options }),
@@ -67,13 +66,19 @@ export default function Game() {
       } else {
         throw new Error("Failed to validate game id");
       }
-    } catch (error) {
-      console.error("Failed to create or find game. Double check your URL!");
-      setPageError(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Failed to create or find game. Double check your URL!");
+        setPageError(error.message);
+      }
     }
-  }
+  }, [options]);
 
-  function makeGuess(adder, answer) {
+  useEffect(() => {
+    fetchGame(gameId);
+  }, [gameId, fetchGame]);
+
+  function makeGuess(adder: string, answer: string) {
     if (adder == answer) {
       addToast("Correct!", "success");
       setResult("Correct!");
@@ -82,10 +87,6 @@ export default function Game() {
       setResult("Incorrect!");
     }
   }
-
-  useEffect(() => {
-    fetchGame(gameId);
-  }, [gameId, fetchGame]);
 
   return (
     <div className="flex flex-col place-items-center space-y-5">
@@ -120,7 +121,7 @@ export default function Game() {
         )}
       </div>
       <div className="flex flex-col place-items-center">
-        <Stack direction="row">
+        <Stack direction={{ base: 'column', md: 'row' }}>
           {
             currentSongToGuess && currentSongToGuess.potentialAdders.map((adder, index) => (
               <Button className="hover:text-cyan-600" onClick={() => makeGuess(adder, currentAnswer)} key={index}>{adder}</Button>
