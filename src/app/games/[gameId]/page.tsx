@@ -10,6 +10,7 @@ import {
   Text,
   Button,
   ButtonGroup,
+  Spinner,
   useToast
 } from '@chakra-ui/react'
 
@@ -92,17 +93,14 @@ export default function Game() {
   return (
     <div className="flex flex-col place-items-center space-y-5">
       <Text> <Link href="/"> Go Back </Link></Text>
-      <Heading>Guess Who Added the Song:</Heading>
       <div className="flex flex-row">
         {currentSongToGuess ? (
-          <div>
-            <div className="flex bg-red space-x-5">
-              <h1>Listen to the Song</h1>
-              <AudioPlayer src={currentSongToGuess.song.previewUrl} />
-            </div>
+          <div className="flex flex-col items-center space-y-2">
+            <Heading className="w-full">Guess Who Added the Song</Heading>
             <Card
               direction={{ base: "column", sm: "row" }}
               variant="outline"
+              className="w-full"
             >
               <Image
                 objectFit='cover'
@@ -118,14 +116,14 @@ export default function Game() {
                 ))}</Text>
               </CardBody>
             </Card>
+            <audio className="self-center w-full" controls src={currentSongToGuess.song.previewUrl} />
           </div>
         ) : (
-          pageError ? <p>Error: {pageError}</p> : <p>Loading...</p>
+          pageError ? <p>Error: {pageError}</p> : <Spinner />
         )}
       </div>
       <div className="flex flex-col place-items-center">
-        <Text fontSize="large"> Who do you think added this song? </Text>
-        <Stack>
+        <Stack direction="row">
           {
             currentSongToGuess && currentSongToGuess.potentialAdders.map((adder, index) => (
               <Button className="hover:text-cyan-600" onClick={() => makeGuess(adder, currentAnswer)} key={index}>{adder}</Button>
