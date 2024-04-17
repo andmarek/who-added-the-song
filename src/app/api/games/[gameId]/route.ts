@@ -52,6 +52,8 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
       }
     );
     const accessToken = tokenResponse.data.access_token;
+
+    // ?offset={}&limit=100
     const playlistResponse = await axios.get(
       `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
       {
@@ -176,7 +178,10 @@ function getRandomSong(spotifyData: any) {
 
 export async function POST(request: Request) {
   const body = await request.json();
+
   const gameId = body.gameId; // TODO: why is this necessary actually???
+  const options = body.options;
+
   console.log("real game id", gameId);
   const getAccessTokenResponse = await getAccessToken();
 
@@ -184,14 +189,14 @@ export async function POST(request: Request) {
 
   const playlistDetailsJson = await fetchPlaylistDetails(gameId, getAccessTokenResponse);
 
-  console.log(playlistDetailsJson);
+  console.log(playlistDetailsJson.total);
 
   const randomSong = getRandomSong(playlistDetailsJson);
 
   const getUserProfileResponse = await getUserProfile(randomSong.addedBy.id, getAccessTokenResponse);
   const personWhoAdded = getUserProfileResponse.display_name;
 
-  const randomCollaboratorsIds = getRandomCollaborators(3, playlistDetailsJson, randomSong.addedBy.id);
+  const randomCollaboratorsIds = getRandomCollaborators(options - 1, playlistDetailsJson, randomSong.addedBy.id);
 
   const randomCollaboratorsDisplayNames = await Promise.all(randomCollaboratorsIds.map(async (collaboratorId: string) => {
     const collaboratorProfile = await getUserProfile(collaboratorId, getAccessTokenResponse);
@@ -200,17 +205,12 @@ export async function POST(request: Request) {
 
   randomCollaboratorsDisplayNames.splice((randomCollaboratorsDisplayNames.length + 1) * Math.random() | 0, 0, personWhoAdded);
 
-  console.log(personWhoAdded);
-
-  console.log("(****")
-  console.log(randomSong);
-
   const apiResponse = {
     gameDetails: getOrCreateResponse,
     song: randomSong as string,
     personWhoAdded: personWhoAdded as string,
     potentialAdders: randomCollaboratorsDisplayNames as string[]
   }
-
+  console.log(getAccessTokenResponse);
   return Response.json(apiResponse);
 }

@@ -18,10 +18,16 @@ export default function AudioPlayer({ src }) {
 
   return (
     <div>
-      <audio ref={audioRef} src={src} onEnded={() => setIsPlaying(false)} />
-      <button onClick={isPlaying ? pause : play}>
-        {isPlaying ? 'Pause' : 'Play'}
-      </button>
+      {src ? (
+        <>
+          <audio ref={audioRef} src={src} onEnded={() => setIsPlaying(false)} controls={false} />
+          <button onClick={isPlaying ? pause : play}>
+            {isPlaying ? 'Pause' : 'Play'}
+          </button>
+        </>
+      ) : (
+        <p> No audio available </p>
+      )}
     </div>
   );
 }

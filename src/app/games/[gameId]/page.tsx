@@ -1,14 +1,36 @@
 "use client";
 
-import { Card, CardHeader, CardBody, Image, Stack, Heading, Text, Button, ButtonGroup, useToast } from '@chakra-ui/react'
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Image,
+  Stack,
+  Heading,
+  Text,
+  Button,
+  ButtonGroup,
+  useToast
+} from '@chakra-ui/react'
 
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams, } from "next/navigation";
+import Link from 'next/link'
+
 import AudioPlayer from "./AudioPlayer";
 
 export default function Game() {
   const toast = useToast();
   const toastIdRef = useRef();
+  const searchParams = useSearchParams();
+
+  let options = searchParams.get('options');
+
+  if (options == null) {
+    options = "4";
+  }
+
+  console.log(options);
 
   function addToast(text: string, status: "success" | "error") {
     toastIdRef.current = toast({ title: text, status: status, isClosable: true, position: "top", duration: 1000 })
@@ -16,6 +38,8 @@ export default function Game() {
 
   const params = useParams<{ gameId: string }>();
   const gameId = params.gameId;
+
+
   const [pageError, setPageError] = useState("");
 
   const [currentSongToGuess, setCurrentSongToGuess] = useState(null);
@@ -29,14 +53,13 @@ export default function Game() {
 
       const response = await fetch(`/api/games/${gameId}`, {
         method: "POST",
-        body: JSON.stringify({ gameId }),
+        body: JSON.stringify({ gameId: gameId, options: options }),
         headers: {
           "Content-Type": "application/json",
         }
       })
       if (response.ok) {
         const repsonseData = await response.json();
-        console.log(repsonseData);
         setCurrentSongToGuess(repsonseData);
         setCurrentAnswer(repsonseData.personWhoAdded);
       } else if (response.status == 404) {
@@ -68,6 +91,7 @@ export default function Game() {
 
   return (
     <div className="flex flex-col place-items-center space-y-5">
+      <Text> <Link href="/"> Go Back </Link></Text>
       <Heading>Guess Who Added the Song:</Heading>
       <div className="flex flex-row">
         {currentSongToGuess ? (
