@@ -11,18 +11,35 @@ import {
   Button,
   ButtonGroup,
   Spinner,
-  useToast
+  useToast,
+  ToastId
 } from '@chakra-ui/react'
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useSearchParams, } from "next/navigation";
 import Link from 'next/link'
 
-import AudioPlayer from "./AudioPlayer";
+
+interface Artist {
+  name: string;
+}
+
+interface Song {
+  albumImageUrl: string;
+  title: string;
+  artists: Artist[];
+  previewUrl: string;
+}
+
+interface CurrentSongToGuess {
+  song: Song;
+  personWhoAdded: string; // Used in setting `currentAnswer`
+  potentialAdders: string[]; // Array of strings, as implied by the mapping
+}
 
 export default function Game() {
   const toast = useToast();
-  const toastIdRef = useRef();
+  const toastIdRef = useRef<ToastId | undefined>();
   const searchParams = useSearchParams();
 
   let options = searchParams.get('options');
@@ -30,7 +47,6 @@ export default function Game() {
   if (options == null) {
     options = "4";
   }
-
 
   function addToast(text: string, status: "success" | "error") {
     toastIdRef.current = toast({ title: text, status: status, isClosable: true, position: "top", duration: 1000 })
@@ -42,8 +58,8 @@ export default function Game() {
 
   const [pageError, setPageError] = useState("");
 
-  const [currentSongToGuess, setCurrentSongToGuess] = useState(null);
-  const [currentAnswer, setCurrentAnswer] = useState(null);
+  const [currentSongToGuess, setCurrentSongToGuess] = useState<CurrentSongToGuess | null>(null);
+  const [currentAnswer, setCurrentAnswer] = useState("");
   const [result, setResult] = useState("");
 
   const fetchGame = useCallback(async (gameId: string) => {
@@ -110,7 +126,7 @@ export default function Game() {
               <CardBody>
                 <Text fontSize="large">Title: {currentSongToGuess.song.title}</Text>
                 <Text fontSize="large">Artists: {currentSongToGuess.song.artists.map((artist, index) => (
-                  <span key={index}>{artist.name}{artist}</span>
+                  <span key={index}>{artist.name}{artist.name}</span>
                 ))}</Text>
               </CardBody>
             </Card>

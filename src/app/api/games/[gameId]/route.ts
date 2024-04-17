@@ -186,8 +186,9 @@ export async function POST(request: Request) {
 
   const randomCollaboratorsIds = getRandomCollaborators(options - 1, playlistDetailsJson, randomSong.addedBy.id);
 
-  const randomCollaboratorsDisplayNames = await Promise.all(randomCollaboratorsIds.map(async (collaboratorId: string) => {
-    const collaboratorProfile = await getUserProfile(collaboratorId, getAccessTokenResponse);
+  const randomCollaboratorsDisplayNames = await Promise.all(randomCollaboratorsIds.map(async (collaboratorId: any) => {
+    const id = collaboratorId as string;
+    const collaboratorProfile = await getUserProfile(id, getAccessTokenResponse);
     return collaboratorProfile.display_name;
   }));
 
