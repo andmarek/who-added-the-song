@@ -62,7 +62,6 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
         },
       }
     );
-    console.log(playlistResponse.data)
     return playlistResponse.data;
   } catch (error) {
     throw error;
@@ -92,7 +91,6 @@ async function getUserProfile(userId: string, accessToken: string) {
         },
       }
     );
-    console.log(playlistResponse.data)
     return playlistResponse.data;
   } catch (error) {
     throw error;
@@ -101,8 +99,6 @@ async function getUserProfile(userId: string, accessToken: string) {
 
 async function fetchPlaylistDetails(playlistId: string, accessToken: string) {
   const fetchPlaylistResponse = await fetchPlaylistTracks(playlistId, accessToken);
-  console.log("PLAYLIST RESP");
-  console.log(fetchPlaylistResponse);
 
   const tracks = fetchPlaylistResponse.items.map((item: any) => {
     return {
@@ -120,7 +116,6 @@ async function fetchPlaylistDetails(playlistId: string, accessToken: string) {
 async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName: string) {
   try {
     // Try to get the item
-    console.log("getting the table stuff")
     const response = await docClient.send(new GetCommand({
       TableName: tableName,
       Key: {
@@ -128,13 +123,10 @@ async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName
       }
     }));
 
-    console.log("after getting the table stuff")
     if (response.Item) {
-      console.log('Item found:', response.Item);
       return response.Item;
     } else {
       // Item not found, attempt to create it
-      console.log("itme not found")
       const putParams = {
         TableName: tableName,
         Item: {
@@ -147,7 +139,6 @@ async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName
       };
 
 
-      console.log("putting")
       await docClient.send(new PutCommand(putParams));
       return putParams.Item;
     }
@@ -161,7 +152,6 @@ async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName
         }
       }
       const response = await docClient.send(params);
-      console.log('Item retrieved after conditional failure:', response.Item);
       return response.Item;
     }
     console.error('Error in get or create operation:', error);
@@ -182,14 +172,12 @@ export async function POST(request: Request) {
   const gameId = body.gameId; // TODO: why is this necessary actually???
   const options = body.options;
 
-  console.log("real game id", gameId);
   const getAccessTokenResponse = await getAccessToken();
 
   const getOrCreateResponse = await getOrCreatePlaylist(docClient, gameId, tableName);
 
   const playlistDetailsJson = await fetchPlaylistDetails(gameId, getAccessTokenResponse);
 
-  console.log(playlistDetailsJson.total);
 
   const randomSong = getRandomSong(playlistDetailsJson);
 
@@ -211,6 +199,5 @@ export async function POST(request: Request) {
     personWhoAdded: personWhoAdded as string,
     potentialAdders: randomCollaboratorsDisplayNames as string[]
   }
-  console.log(getAccessTokenResponse);
   return Response.json(apiResponse);
 }

@@ -31,7 +31,6 @@ export default function Game() {
     options = "4";
   }
 
-  console.log(options);
 
   function addToast(text: string, status: "success" | "error") {
     toastIdRef.current = toast({ title: text, status: status, isClosable: true, position: "top", duration: 1000 })
@@ -77,12 +76,10 @@ export default function Game() {
   function makeGuess(adder, answer) {
     if (adder == answer) {
       addToast("Correct!", "success");
-      console.log("Correct!");
       setResult("Correct!");
     } else {
       addToast("Incorrect!", "error");
       setResult("Incorrect!");
-      console.log("Incorrect!");
     }
   }
 

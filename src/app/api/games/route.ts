@@ -38,7 +38,6 @@ const fetchPlaylist = async (playlistId: string) => {
         },
       }
     );
-    console.log(playlistResponse)
     return playlistResponse.data;
   } catch (error) {
     throw error;
@@ -46,7 +45,6 @@ const fetchPlaylist = async (playlistId: string) => {
 };
 export async function fetchPlaylistDetails(playlistUrl: string) {
   const playlistId = playlistUrl.split("playlist/")[1].split("?si=")[0]
-  console.log("yoooo", playlistId);
 
   const fetchPlaylistResponse = await fetchPlaylist(playlistId);
   const tracks = fetchPlaylistResponse.items.map((item: any) => {
@@ -102,7 +100,6 @@ async function getOrCreatePlaylist(docClient, playlistUrl: string, tableName: st
     const response = await docClient.get(getParams).promise();
 
     if (response.Item) {
-      console.log('Item found:', response.Item);
       return response.Item;
     } else {
       // Item not found, attempt to create it
@@ -117,14 +114,12 @@ async function getOrCreatePlaylist(docClient, playlistUrl: string, tableName: st
       };
 
       await docClient.put(putParams).promise();
-      console.log('New item created:', putParams.Item);
       return putParams.Item;
     }
   } catch (error) {
     if (error.code === 'ConditionalCheckFailedException') {
       // The item was created between the get and put operations, retrieve it
       const response = await docClient.get(getParams).promise();
-      console.log('Item retrieved after conditional failure:', response.Item);
       return response.Item;
     }
     console.error('Error in get or create operation:', error);

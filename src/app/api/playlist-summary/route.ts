@@ -27,7 +27,6 @@ const fetchPlaylist = async (playlistId: string) => {
         },
       }
     );
-    console.log(playlistResponse)
     return playlistResponse.data;
   } catch (error) {
     throw error;
@@ -38,7 +37,6 @@ export async function POST(request: Request) {
   const playlistUrl = formData.playlistId;
   const playlistId = playlistUrl.split("playlist/")[1].split("?si=")[0]
 
-  console.log(playlistId);
 
   const fetchPlaylistResponse = await fetchPlaylist(playlistId);
   const tracks = fetchPlaylistResponse.items.map((item: any) => {
