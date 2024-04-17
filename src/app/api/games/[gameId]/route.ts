@@ -99,7 +99,7 @@ async function getUserProfile(userId: string, accessToken: string) {
   }
 }
 
-export async function fetchPlaylistDetails(playlistId: string, accessToken: string) {
+async function fetchPlaylistDetails(playlistId: string, accessToken: string) {
   const fetchPlaylistResponse = await fetchPlaylistTracks(playlistId, accessToken);
   console.log("PLAYLIST RESP");
   console.log(fetchPlaylistResponse);

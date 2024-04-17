@@ -88,7 +88,7 @@ export default function Game() {
 
   useEffect(() => {
     fetchGame(gameId);
-  }, [gameId]);
+  }, [gameId, fetchGame]);
 
   return (
     <div className="flex flex-col place-items-center space-y-5">
