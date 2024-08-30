@@ -44,17 +44,14 @@ export default function Page() {
     try {
       const response = await fetch(`/api/games/${gameId}/leaderboard/${name}`, {
         method: "POST",
-        body: JSON.stringify({ score }),
+        body: JSON.stringify({ gameId, username: name, score }),
         headers: {
           "Content-Type": "application/json",
         },
       });
       if (response.ok) {
-        // Update the leaderboard locally
-        setLeaderboard(prevLeaderboard => ({
-          ...prevLeaderboard,
-          leaderboard: [...prevLeaderboard.leaderboard, { userId: name, score }]
-        }));
+        const updatedLeaderboard = await response.json();
+        setLeaderboard(updatedLeaderboard);
         setModalOpen(false);
       } else {
         throw new Error("Failed to update leaderboard");

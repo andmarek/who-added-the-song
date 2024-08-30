@@ -192,7 +192,7 @@ async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName
         TableName: tableName,
         Item: {
           playlistId: playlistId,
-          leaderboard: {},
+          leaderboard: [],  // Change this from {} to []
           createdAt: new Date().toISOString()
         },
         // Make the operation conditional on the item not existing
