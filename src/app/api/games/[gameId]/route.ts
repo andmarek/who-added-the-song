@@ -11,6 +11,15 @@ const ddb = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(ddb);
 const tableName = process.env.TABLE_NAME as string
 
+interface Entry {
+  displayName: string
+  score: number
+}
+
+interface Leaderboard {
+  entries: Entry[]
+}
+
 interface ParsedTrack {
   title: string,
   artists: string[],
@@ -34,15 +43,14 @@ interface Track {
   name: string;
   artists: Artist[];
   added_by: {
-    id: string; // Assuming the `added_by` field contains an `id`
-    // You might have other fields here depending on the data structure
+    id: string;
     external_urls: {
-      spotify: string; // Adjust according to actual structure
+      spotify: string;
     };
   };
-  preview_url: string; // URL to the track's preview
+  preview_url: string;
   album: {
-    images: AlbumImage[]; // An array of images, assuming first one is what you're interested in
+    images: AlbumImage[];
   };
 }
 
@@ -176,7 +184,7 @@ async function getOrCreatePlaylist(docClient: any, playlistId: string, tableName
     }));
 
     if (response.Item) {
-      console.log("Found playlist in DynamoDb");
+      console.log("Found playlist in DynamoDb. Going to return it.");
       return response.Item;
     } else {
       // Item not found, attempt to create it
@@ -226,17 +234,18 @@ export async function POST(request: Request) {
   const options = body.options;
 
   const getAccessTokenResponse = await getAccessToken();
+  const playlistDetailsJson = await fetchPlaylistDetails(gameId, getAccessTokenResponse);
 
   const getOrCreateResponse = await getOrCreatePlaylist(docClient, gameId, tableName);
-
-  const playlistDetailsJson = await fetchPlaylistDetails(gameId, getAccessTokenResponse);
 
   const randomSong = getRandomSong(playlistDetailsJson);
 
   const getUserProfileResponse = await getUserProfile(randomSong.addedBy.id, getAccessTokenResponse);
+
   const personWhoAdded = getUserProfileResponse.display_name;
 
   const randomCollaboratorsIds = getRandomCollaborators(options - 1, playlistDetailsJson, randomSong.addedBy.id);
+
   const randomCollaboratorsDisplayNames = await Promise.all(randomCollaboratorsIds.map(async (collaboratorId: any) => {
     console.log("getting random collabors display names");
     const id = collaboratorId as string;
