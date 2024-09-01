@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Game from "./game/Game";
-import Leaderboard, { LeaderboardData } from "./leaderboard/Leadeboard";
+import Leaderboard, { LeaderboardData, LeaderboardEntry } from "./leaderboard/Leadeboard";
 import SaveScoreModal from "../../components/save-score-modal";
 import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator } from "@chakra-ui/react";
 
