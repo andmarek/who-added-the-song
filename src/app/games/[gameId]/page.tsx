@@ -16,6 +16,7 @@ export default function Page() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardData>({
     leaderboard: [],
   });
+  const [activeTab, setActiveTab] = useState(0);
 
   async function fetchLeaderboard(gameId: string) {
     try {
@@ -50,9 +51,16 @@ export default function Page() {
         },
       });
       if (response.ok) {
-        const updatedLeaderboard = await response.json();
-        setLeaderboard(updatedLeaderboard);
+        const updatedLeaderboardData = await response.json();
+        setLeaderboard(prevLeaderboard => ({
+          ...prevLeaderboard,
+          leaderboard: [
+            ...prevLeaderboard.leaderboard,
+            { username: name, score: score }
+          ].sort((a, b) => b.score - a.score) // Sort in descending order
+        }));
         setModalOpen(false);
+        setActiveTab(1); // Switch to leaderboard tab
       } else {
         throw new Error("Failed to update leaderboard");
       }
@@ -67,6 +75,12 @@ export default function Page() {
     setModalOpen(true);
   }
 
+  useEffect(() => {
+    if (gameId) {
+      fetchLeaderboard(gameId);
+    }
+  }, [gameId]);
+
   return (
     <div>
       <SaveScoreModal
@@ -75,7 +89,7 @@ export default function Page() {
         sessionScore={sessionScore}
         updateLeaderboardData={updateLeaderboardData}
       />
-      <Tabs position="relative" variant="unstyled">
+      <Tabs index={activeTab} onChange={(index) => setActiveTab(index)} position="relative" variant="unstyled">
         <TabList>
           <Tab>Game</Tab>
           <Tab>Leaderboard</Tab>

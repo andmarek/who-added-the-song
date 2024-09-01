@@ -14,7 +14,7 @@ function SaveScoreModal({ isOpen, onClose, sessionScore, updateLeaderboardData }
   const handleSaveScore = () => {
     const name = nameRef.current?.value || "";
     updateLeaderboardData(sessionScore, name);
-    onClose();
+    // The modal will be closed by the parent component after updating the leaderboard
   };
 
   if (!isOpen) return null;

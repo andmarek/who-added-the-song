@@ -26,7 +26,7 @@ export default function Leaderboard({ leaderboardData }: LeaderboardProps) {
     if (!gameId) return;
     try {
       const response = await fetch(`/api/games/${gameId}/leaderboard`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -51,6 +51,9 @@ export default function Leaderboard({ leaderboardData }: LeaderboardProps) {
     fetchGameLeaderboard(gameId);
   }, [gameId, fetchGameLeaderboard]);
 
+  // Sort the leaderboard entries
+  const sortedLeaderboard = leaderboard?.leaderboard.sort((a, b) => b.score - a.score) || [];
+
   return (
     <div className="max-w-2xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6">
@@ -65,7 +68,7 @@ export default function Leaderboard({ leaderboardData }: LeaderboardProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {leaderboard && leaderboard.leaderboard.map((entry, index) => (
+          {sortedLeaderboard.map((entry, index) => (
             <tr key={entry.username} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
               <td className="py-4 px-6 whitespace-nowrap">
                 <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${index < 3 ? 'bg-yellow-400 text-white' : 'bg-gray-200 text-gray-700'} font-bold text-sm`}>

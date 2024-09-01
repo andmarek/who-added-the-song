@@ -19,7 +19,7 @@ async function getLeaderboard(dynamoTableName: string, gameId: string) {
   return [];
 }
 
-export async function POST(request: NextRequest, { params }: { params: { gameId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { gameId: string } }) {
   const gameId = params.gameId;
   const leaderboard = await getLeaderboard(tableName, gameId);
   console.log("leaderboard", leaderboard);
