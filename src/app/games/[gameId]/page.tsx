@@ -17,6 +17,7 @@ export default function Page() {
     leaderboard: [],
   });
   const [activeTab, setActiveTab] = useState(0);
+  const [latestEntry, setLatestEntry] = useState<LeaderboardEntry | undefined>(undefined);
 
   async function fetchLeaderboard(gameId: string) {
     try {
@@ -52,15 +53,12 @@ export default function Page() {
       });
       if (response.ok) {
         const updatedLeaderboardData = await response.json();
-        setLeaderboard(prevLeaderboard => ({
-          ...prevLeaderboard,
-          leaderboard: [
-            ...prevLeaderboard.leaderboard,
-            { username: name, score: score }
-          ].sort((a, b) => b.score - a.score) // Sort in descending order
-        }));
+        setLeaderboard(updatedLeaderboardData);
+        setLatestEntry({ username: name, score: score });
         setModalOpen(false);
         setActiveTab(1); // Switch to leaderboard tab
+        // Fetch the updated leaderboard
+        fetchLeaderboard(gameId);
       } else {
         throw new Error("Failed to update leaderboard");
       }
@@ -108,7 +106,7 @@ export default function Page() {
             />
           </TabPanel>
           <TabPanel>
-            <Leaderboard leaderboardData={leaderboard} />
+            <Leaderboard leaderboardData={leaderboard} latestEntry={latestEntry} />
           </TabPanel>
         </TabPanels>
       </Tabs>
