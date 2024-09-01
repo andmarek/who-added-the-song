@@ -15,7 +15,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useSearchParams, } from "next/navigation";
 import Link from 'next/link'
 
-
 interface Artist {
   name: string;
 }
@@ -62,7 +61,6 @@ export default function Game({ openModal, setSessionScore }: GameProps) {
 
   const params = useParams<{ gameId: string }>();
   const gameId = params.gameId;
-
 
   const [pageError, setPageError] = useState("");
 
@@ -112,11 +110,19 @@ export default function Game({ openModal, setSessionScore }: GameProps) {
     }
   }, [shouldOpenModal, score, setSessionScore, openModal]);
 
+  const [guessedCorrectly, setGuessedCorrectly] = useState(false);
+  const [guessedAdders, setGuessedAdders] = useState<string[]>([]);
+
   function makeGuess(adder: string, answer: string) {
-    if (adder == answer) {
+    if (guessedCorrectly) return; // Prevent multiple correct guesses
+
+    setGuessedAdders([...guessedAdders, adder]);
+
+    if (adder === answer) {
       addToast("Correct!", "success");
       setResult("Correct!");
       setScore(score + 1);
+      setGuessedCorrectly(true);
     } else {
       addToast("Incorrect!", "error");
       setResult("Incorrect!");
@@ -124,10 +130,17 @@ export default function Game({ openModal, setSessionScore }: GameProps) {
         const newAttempts = prevAttempts - 1;
         if (newAttempts === 0) {
           setShouldOpenModal(true);
+          setGuessedCorrectly(true); // Lock all buttons when attempts are exhausted
         }
         return newAttempts;
       });
     }
+  }
+
+  function nextSong() {
+    fetchGame(gameId);
+    setGuessedCorrectly(false);
+    setGuessedAdders([]);
   }
 
   return (
@@ -166,13 +179,32 @@ export default function Game({ openModal, setSessionScore }: GameProps) {
         <Stack direction={{ base: 'column', md: 'row' }}>
           {
             currentSongToGuess && currentSongToGuess.potentialAdders.map((adder, index) => (
-              <Button className="hover:text-cyan-600" onClick={() => makeGuess(adder, currentAnswer)} key={index}>{adder}</Button>
+              <Button
+                key={index}
+                onClick={() => makeGuess(adder, currentAnswer)}
+                disabled={guessedCorrectly || guessedAdders.includes(adder)}
+                className={`
+                  ${guessedAdders.includes(adder) ? 
+                    (adder === currentAnswer ? 'bg-green-500 text-white' : 'bg-red-500 text-white') : 
+                    'hover:text-cyan-600'
+                  }
+                  ${guessedCorrectly && adder !== currentAnswer ? 'opacity-50' : ''}
+                `}
+              >
+                {adder}
+              </Button>
             ))
           }
         </Stack>
       </div>
       <div>
-        <Button colorScheme='blue' onClick={() => fetchGame(gameId)}>Next Song</Button>
+        <Button 
+          colorScheme='blue' 
+          onClick={nextSong}
+          disabled={!guessedCorrectly && attemptsLeft > 0}
+        >
+          Next Song
+        </Button>
       </div>
     </div>
   );
